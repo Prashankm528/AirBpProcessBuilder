@@ -1,0 +1,90 @@
+/****************************************************************************************************
+ *  Date          : 9-Apr-2022
+ *  Author        : Shalini Sati
+ *  Description   : Helper class for AITM_DeliveryPoint__ c Handler
+ ****************************************************************************************************/
+
+public without sharing class AITM_DeliveryPoint_Helper{
+    
+    /**
+    * @description Process builder into trigger (Insert AITM_Delivery_Point__c's Location field based on IsActive is true or false)
+    * @param listOfContacts of type AITM_Delivery_Point__c list
+    * @return null
+    */  
+    
+   public static void airBPIsActivebeforeInsert(List<AITM_Delivery_Point__c> listDeliverypoint){
+       
+       for(AITM_Delivery_Point__c objDeliveryPoint : listDeliverypoint) {
+           if(objDeliveryPoint.AITM_Location__c != null){
+               if(!objDeliveryPoint.AITM_Is_Active__c){
+                  objDeliveryPoint.AITM_Active_Lookup_Locations__c = null;
+                  objDeliveryPoint.AITM_Inactive_Lookup_Locations__c = objDeliveryPoint.AITM_Location__c;   
+               }
+               else{
+                 objDeliveryPoint.AITM_Active_Lookup_Locations__c = objDeliveryPoint.AITM_Location__c;
+                 objDeliveryPoint.AITM_Inactive_Lookup_Locations__c = null;         
+               } 
+           }
+       }   
+       
+   }
+   
+    /**
+    * @description Process builder into trigger (Update AITM_Delivery_Point__c's Location field based on IsActive is true or false)
+    * @param listOfContacts of type AITM_Delivery_Point__c list,oldContactMap of type map of AITM_Delivery_Point__c records
+    * @return null
+    */  
+   
+    public static void airBPIsActivebeforeUpdate(List<AITM_Delivery_Point__c> listDeliverypoint, Map<id, AITM_Delivery_Point__c> mapDeliverypoint){
+       
+       for(AITM_Delivery_Point__c new_objDeliveryPoint : listDeliverypoint) {
+           AITM_Delivery_Point__c old_objDeliveryPoint = mapDeliverypoint.get(new_objDeliveryPoint.ID);
+           if(new_objDeliveryPoint.AITM_Is_Active__c != old_objDeliveryPoint.AITM_Is_Active__c && new_objDeliveryPoint.AITM_Location__c != null){
+               if(!new_objDeliveryPoint.AITM_Is_Active__c){
+                  new_objDeliveryPoint.AITM_Active_Lookup_Locations__c = null;
+                  new_objDeliveryPoint.AITM_Inactive_Lookup_Locations__c = new_objDeliveryPoint.AITM_Location__c;   
+               }
+               else{
+                 new_objDeliveryPoint.AITM_Active_Lookup_Locations__c = new_objDeliveryPoint.AITM_Location__c;
+                 new_objDeliveryPoint.AITM_Inactive_Lookup_Locations__c = null;         
+               }  
+           }
+       }
+   }
+
+   public static void airBPIsCreatedDPbeforeInsert(List<AITM_Delivery_Point__c> listDeliverypoint){
+       Set<ID> LOCID = new set<ID>();
+       Map<id,AITM_Location__c> LOCMAP ;
+       for(AITM_Delivery_Point__c objDeliveryPoint : listDeliverypoint){
+              LOCID.add(objDeliveryPoint.AITM_Location__c); 
+       }
+       LOCMAP = new Map<id,AITM_Location__c>([SELECT ID,AITM_IATA__c,AITM_ICAO__c FROM AITM_Location__c where ID IN:LOCID]);
+       
+       for(AITM_Delivery_Point__c objDeliveryPoint : listDeliverypoint) {
+           if(LOCMAP.ContainsKey(objDeliveryPoint.AITM_Location__c)){
+               objDeliveryPoint.AITM_IATA__c =  LOCMAP.get(objDeliveryPoint.AITM_Location__c).AITM_IATA__c;
+               objDeliveryPoint.AITM_ICAO__c =  LOCMAP.get(objDeliveryPoint.AITM_Location__c).AITM_ICAO__c;   
+           }
+       }
+   }
+
+   public static void airBPIsUpdatedIATAbeforeUpdate(List<AITM_Delivery_Point__c> listDeliverypoint, Map<id, AITM_Delivery_Point__c> mapDeliverypoint){
+
+       for(AITM_Delivery_Point__c new_objDeliveryPoint : listDeliverypoint) {
+       AITM_Delivery_Point__c old_objDeliveryPoint = mapDeliverypoint.get(new_objDeliveryPoint.ID);
+           if(new_objDeliveryPoint.AITM_Location__r.AITM_IATA__c != old_objDeliveryPoint.AITM_Location__r.AITM_IATA__c && new_objDeliveryPoint.AITM_Location__c != null && new_objDeliveryPoint.AITM_IATA__c == null){
+           new_objDeliveryPoint.AITM_IATA__c = new_objDeliveryPoint.AITM_Location__r.AITM_IATA__c;         
+           }
+       }
+   }    
+
+   public static void airBPIsUpdatedICAObeforeUpdate(List<AITM_Delivery_Point__c> listDeliverypoint, Map<id, AITM_Delivery_Point__c> mapDeliverypoint){
+
+       for(AITM_Delivery_Point__c new_objDeliveryPoint : listDeliverypoint) {
+       AITM_Delivery_Point__c old_objDeliveryPoint = mapDeliverypoint.get(new_objDeliveryPoint.ID);
+           if(new_objDeliveryPoint.AITM_Location__r.AITM_ICAO__c != old_objDeliveryPoint.AITM_Location__r.AITM_ICAO__c && new_objDeliveryPoint.AITM_Location__c != null && new_objDeliveryPoint.AITM_ICAO__c == null){
+           new_objDeliveryPoint.AITM_ICAO__c = new_objDeliveryPoint.AITM_Location__r.AITM_ICAO__c;         
+           }
+       }
+   }
+}
