@@ -1,0 +1,116 @@
+/***************************************************************
+ * @author           Shalini Sati
+ * @date             12/April/2022
+ * @group            AirBP
+ * @description      Test class created for AITM_DeliveryPoint_Helper class
+
+ * history
+ * 12/April/2022     Shalini Sati       Created 
+ **************************************************************/
+@isTest
+public class AITM_DeliveryPoint_HelperTest {
+    @isTest
+    public static void airBPIsActivebeforeInsertTest(){
+        AITM_DeliveryPoint_HelperTestSetup testSetup = new AITM_DeliveryPoint_HelperTestSetup().generateData();
+        
+        AITM_Location__c Loc = testSetup.locationRecord;
+        AITM_Delivery_Point__c dp1 = testSetup.deliveryPoint1;
+        AITM_Delivery_Point__c dp2 = testSetup.deliveryPoint2;
+        
+        test.startTest();
+        //updating delivery point record 1
+        dp1.AITM_Is_Active__c = false;
+        dp1.AITM_Active_Lookup_Locations__c = null;
+        dp1.AITM_Inactive_Lookup_Locations__c = Loc.id; 
+        update dp1;
+        //updating delivery point record 2
+        dp2.AITM_Is_Active__c = true;
+        dp2.AITM_Active_Lookup_Locations__c = Loc.id;
+        dp2.AITM_Inactive_Lookup_Locations__c = null; 
+        update dp2;
+        test.stopTest();
+     
+        AITM_Delivery_Point__c queryDeliveryPoint = [SELECT ID,AITM_Is_Active__c,AITM_Active_Lookup_Locations__c,Name,
+                                                     AITM_Inactive_Lookup_Locations__c FROM AITM_Delivery_Point__c
+                                                     WHERE ID =:dp1.Id];
+        
+        System.assertEquals('TESTNAME-1', queryDeliveryPoint.Name);
+        System.assertEquals(false, queryDeliveryPoint.AITM_Is_Active__c);
+        
+    }
+    
+    @isTest
+    public static void airBPIsActivebeforeUpdateTest(){
+    	AITM_DeliveryPoint_HelperTestSetup testSetup = new AITM_DeliveryPoint_HelperTestSetup().generateData(); 
+        
+        AITM_Location__c Loc = testSetup.locationRecord;
+        AITM_Delivery_Point__c dp1 = testSetup.deliveryPoint1;
+        
+        test.startTest();
+        //Creating Delivery point record
+        AITM_Delivery_Point__c newDP = new AITM_Delivery_Point__c();
+        newDP.AITM_Location__c = Loc.id;
+        newDP.AITM_IATA__c = 'Y';
+        newDP.AITM_ICAO__c = 'CY';
+        insert newDP;
+        //updating location record
+        Loc.AITM_IATA__c = 'Y1';
+        Loc.AITM_ICAO__c = 'CY1';
+        update Loc;
+        //updating Delivery point record
+        newDP.AITM_Location__c = Loc.id;
+        newDP.AITM_IATA__c = 'Y1';
+        newDP.AITM_ICAO__c = 'CY1';
+        update newDP;
+        // update delivery point
+        dp1.AITM_Location__c = Loc.id;
+        dp1.AITM_IATA__c = 'Y1';
+        dp1.AITM_ICAO__c = 'CY1';
+        update dp1;
+        test.stopTest();
+        
+        AITM_Delivery_Point__c queryDeliveryPoint = [SELECT ID,AITM_ICAO__c,AITM_IATA__c,Name FROM AITM_Delivery_Point__c
+                                                     WHERE ID =:newDP.Id];
+        
+        System.assertEquals('CY1', queryDeliveryPoint.AITM_ICAO__c);
+        System.assertEquals('Y1', queryDeliveryPoint.AITM_IATA__c);
+            
+    }
+    
+    /**
+     * @description AITM_DeliveryPoint__c Test data setup class
+     */
+    private inherited sharing class AITM_DeliveryPoint_HelperTestSetup extends AITM_TestSetup {
+        private AITM_Location__c locationRecord;
+        private AITM_Delivery_Point__c deliveryPoint1;
+        private AITM_Delivery_Point__c deliveryPoint2;
+        
+        /**
+         * @description generate test data
+         * @param  null
+         * @return AITM_DeliveryPoint_HelperTestSetup
+         */
+        private AITM_DeliveryPoint_HelperTestSetup generateData() {
+            locationRecord = createLocation();
+            insert locationRecord;
+
+            deliveryPoint1 = createDeliveryPoint(locationRecord, true, 1);
+            deliveryPoint1.AITM_Location__c = locationRecord.id;
+            deliveryPoint1.AITM_Is_Active__c = true;
+            deliveryPoint1.AITM_Active_Lookup_Locations__c = locationRecord.id;
+            deliveryPoint1.AITM_Inactive_Lookup_Locations__c = null;
+            deliveryPoint1.AITM_IATA__c = '';
+            deliveryPoint1.AITM_ICAO__c = '';
+            insert deliveryPoint1;
+
+            deliveryPoint2 = createDeliveryPoint(locationRecord, false, 2);
+            deliveryPoint2.AITM_Location__c = locationRecord.id;
+            deliveryPoint2.AITM_Is_Active__c = false;
+            deliveryPoint2.AITM_Active_Lookup_Locations__c = null;
+            deliveryPoint2.AITM_Inactive_Lookup_Locations__c = locationRecord.id;
+            insert deliveryPoint2;
+
+            return this;
+        }
+    }
+}
