@@ -1,0 +1,34 @@
+/****************************************************************************************************
+ *  Date          : 13-May-2022
+ *  Author        : Shalini Sati
+ *  Description   : Helper class for AITM_DeliveryPointAirportContact_Handler
+ * 					Test class created for coverage (AITM_DeliveryPointAirportContact_HPTest)
+ ****************************************************************************************************/
+
+public without sharing class AITM_DeliveryPointAirportContact_Helper{
+    
+     /**
+     * @description Process builder into trigger (Insert AITM_Delivery_Point_Airport_Contact__c's(Delivery point's) Active Lookup field based on IsActive is true or false)
+     * @param listOfContacts of type AITM_Delivery_Point_Airport_Contact__c list
+     * @return null
+      */
+     
+    public static void airBPIsActiveAirportContactbeforeInsertupdate(List<AITM_Delivery_Point_Airport_Contact__c> listDeliverypointAirportContact){
+        set<ID> dpID = new set<ID>();
+        for(AITM_Delivery_Point_Airport_Contact__c ref : listDeliverypointAirportContact){
+            dpID.add(ref.AITM_Delivery_Point__c);
+        }
+        
+        Map<ID,AITM_Delivery_Point__c> mapDeliverPoint = new Map<ID,AITM_Delivery_Point__c>([select Id, AITM_Is_Active__c from AITM_Delivery_Point__c where id in:dpID]);
+        
+        for(AITM_Delivery_Point_Airport_Contact__c refobj : listDeliverypointAirportContact){
+            if(mapDeliverPoint.get(refobj.AITM_Delivery_Point__c) != null && mapDeliverPoint.get(refobj.AITM_Delivery_Point__c).AITM_Is_Active__c){
+                refobj.AITM_Active_Lookup_Delivery_Points__c = mapDeliverPoint.get(refobj.AITM_Delivery_Point__c).ID;
+                refobj.AITM_Inactive_Lookup_Delivery_Points__c = null;              
+            }else{
+                refobj.AITM_Active_Lookup_Delivery_Points__c = null;
+                refobj.AITM_Inactive_Lookup_Delivery_Points__c = mapDeliverPoint.get(refobj.AITM_Delivery_Point__c).ID;  
+            }
+        }
+    }
+}
