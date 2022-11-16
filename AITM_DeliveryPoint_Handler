@@ -1,0 +1,34 @@
+/*************************************************************************
+* @author         Shalini Sati
+* @Luke Date      10/April/2022
+* @group          AirBP
+* @description    Trigger handler for AITM_Delivery_Point__c Object
+
+* * history
+*10/April/2022  	 Shalini Sati      Created
+*************************************************************************/
+
+
+public with sharing class AITM_DeliveryPoint_Handler extends BPG_Trigger_Handler_Utilities {
+    
+    /****************************************************************************************************
+     Before Insert Event Handler
+    ****************************************************************************************************/
+    public override void beforeInsert(List<SObject> o, Map<Id, SObject> oMap, List<SObject> n, Map<Id, SObject> nMap, Schema.SObjectType sot, String params, Boolean debug) {
+        if (sot.getDescribe().getName() == 'AITM_Delivery_Point__c') AITM_DeliveryPoint_Helper.airBPIsActivebeforeInsert((List<AITM_Delivery_Point__c>) n);
+        if (sot.getDescribe().getName() == 'AITM_Delivery_Point__c') AITM_DeliveryPoint_Helper.airBPIsCreatedDPbeforeInsert((List<AITM_Delivery_Point__c>) n);
+       // if (sot.getDescribe().getName() == 'AITM_Delivery_Point__c') AITM_DeliveryPoint_Helper.updateDeliveryProductDetails((List<AITM_Delivery_Point__c>) n, (Map<Id, AITM_Delivery_Point__c>) oMap);
+    } 
+
+    /****************************************************************************************************
+     Before Update Event Handler
+    ***************************************************************************************************/
+    public override void beforeUpdate(List<SObject> o, Map<Id, SObject> oMap, List<SObject> n, Map<Id, SObject> nMap, Schema.SObjectType sot, String params, Boolean debug) {
+        if (sot.getDescribe().getName() == 'AITM_Delivery_Point__c') AITM_DeliveryPoint_Helper.airBPIsActivebeforeUpdate((List<AITM_Delivery_Point__c>) n, (Map<Id, AITM_Delivery_Point__c>) oMap);
+        if (sot.getDescribe().getName() == 'AITM_Delivery_Point__c') AITM_DeliveryPoint_Helper.airBPIsUpdatedIATAbeforeUpdate((List<AITM_Delivery_Point__c>) n, (Map<Id, AITM_Delivery_Point__c>) oMap);
+        if (sot.getDescribe().getName() == 'AITM_Delivery_Point__c') AITM_DeliveryPoint_Helper.airBPIsUpdatedICAObeforeUpdate((List<AITM_Delivery_Point__c>) n, (Map<Id, AITM_Delivery_Point__c>) oMap);
+       // if (sot.getDescribe().getName() == 'AITM_Delivery_Point__c') AITM_DeliveryPoint_Helper.updateDeliveryProductDetails((List<AITM_Delivery_Point__c>) n, (Map<Id, AITM_Delivery_Point__c>) oMap);
+        
+    }
+  	
+}
